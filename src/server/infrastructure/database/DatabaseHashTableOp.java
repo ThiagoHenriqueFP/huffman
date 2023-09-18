@@ -36,14 +36,15 @@ public class DatabaseHashTableOp implements DatabaseFunctions{
         }
     }
 
-    public void remove(String key) {
+    public Node remove(String key) {
         int index = hash(key);
         int tries = 0;
 
         while (index < nodes.length) {
             if (nodes[index].key().equals(key)){
+                Node tmp = nodes[index];
                 nodes[index] = null;
-                return;
+                return tmp;
             }
             else index = spread(index, ++tries);
         }
@@ -85,6 +86,15 @@ public class DatabaseHashTableOp implements DatabaseFunctions{
         }
 
          throw new NullPointerException("This node isn`t in the database");
+    }
+    @Override
+    public int count() {
+        int count = 0;
+        for (int i = 0; i < this.SIZE; i++)
+            if (this.nodes[i] != null)
+                count++;
+
+        return count;
     }
 
     private int spread(int index, int tries) {

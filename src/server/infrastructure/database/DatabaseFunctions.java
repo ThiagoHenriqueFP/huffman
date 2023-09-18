@@ -6,8 +6,8 @@ public interface DatabaseFunctions {
     void insert(Node n);
     Node update(Node n);
     Node get(String key);
-    void remove(String key);
-
+    Node remove(String key);
     void getAll();
+    int count();
 
 }

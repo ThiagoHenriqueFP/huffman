@@ -36,7 +36,7 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
         );
     }
 
-    public void remove(String key){
+    public Node remove(String key){
         int index = hash(key);
 
         Node retrieve = nodes[index].stream().filter( it -> it.key().equals(key)).findFirst().orElseThrow(() ->
@@ -44,6 +44,7 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
         );
 
         nodes[index].remove(retrieve);
+        return retrieve;
     }
 
     @Override
@@ -52,6 +53,17 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
             if(this.nodes[i] != null)
                 System.out.println("index -> " + i +" = "+ this.nodes[i]);
         }
+    }
+
+    @Override
+    public int count() {
+        int count = 0;
+        for (int i = 0; i < this.SIZE; i++)
+            if (this.nodes[i] != null){
+                count += this.nodes[i].size();
+            }
+
+        return count;
     }
 
     public Node update(Node n){

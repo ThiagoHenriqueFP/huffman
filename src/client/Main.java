@@ -4,7 +4,9 @@ import server.domain.Node;
 import server.infrastructure.protocol.ADMP;
 import server.domain.Car;
 
+import javax.management.openmbean.KeyAlreadyExistsException;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Main {
     static String USERNAME = "password";
@@ -18,6 +20,7 @@ public class Main {
         boolean authenticated = true;
 
         Scanner sc = new Scanner(System.in);
+        Logger logger = Logger.getLogger("Main");
 
         while (type < 0 || type > 1) {
             System.out.println("Qual encadeamento deseja usar?" +
@@ -38,6 +41,7 @@ public class Main {
                         "| 4)  | Remover carro       |\n" +
                         "| 5)  | Atualizar carro     |\n" +
                         "| 6)  | Listar todos        |\n" +
+                        "| 7)  | Pegar quantidade    |\n" +
                         "| 9)  | Popular banco       |\n" +
                         "| 0)  | Sair                |\n" +
                         "+-----+---------------------+");
@@ -158,6 +162,14 @@ public class Main {
 
                         protocol.getAll();
                         break;
+                    case 7:
+                        if (!authenticated) {
+                            System.out.println("esta funcao precisa de autenticacao");
+                            break;
+                        }
+
+                        System.out.println("Elementos no banco de dados = " + protocol.count());
+                        break;
                     case 9:
                         populate();
                         break;
@@ -167,8 +179,8 @@ public class Main {
                     default:
                         break;
                 }
-            } catch (Exception e) {
-                System.out.println("An error occurred\n" + e.getMessage());
+            } catch (NullPointerException | KeyAlreadyExistsException | ArrayIndexOutOfBoundsException e) {
+                logger.severe(e.getMessage());
             }
 
         } while (option != 0);
