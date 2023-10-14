@@ -3,11 +3,11 @@
 
 pt-br
 
-Projeto para construcao de uma tabela de dispercao
+Projeto para implementar o algoritomo classico de Huffman
 
 en-us
 
-Project to build an hash table
+Project to implement the Huffman classical algorithm
 
 # Como usar
 pt-br
