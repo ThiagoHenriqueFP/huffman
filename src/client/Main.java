@@ -1,6 +1,8 @@
 package client;
 
+import server.domain.CompressionResponse;
 import server.domain.Node;
+import server.infrastructure.compressor.Compressor;
 import server.infrastructure.protocol.ADMP;
 import server.domain.Car;
 
@@ -11,26 +13,17 @@ import java.util.logging.Logger;
 public class Main {
     static String USERNAME = "password";
     static String PASSWORD = "username";
-    static ADMP protocol;
+    static ADMP protocol = new ADMP();
+
+    static Compressor compressor = new Compressor();
 
     public static void main(String[] args) {
 
         int option = 0;
-        int type = -1;
         boolean authenticated = true;
 
         Scanner sc = new Scanner(System.in);
         Logger logger = Logger.getLogger("Main");
-
-        while (type < 0 || type > 1) {
-            System.out.println("Qual encadeamento deseja usar?" +
-                    "\nAberto: [1]" +
-                    "\nExterno: [0]");
-
-            type = sc.nextInt();
-        }
-
-        protocol = new ADMP(type == 1);
 
         do {
             try {
@@ -89,7 +82,9 @@ public class Main {
                                 cpf
                         );
 
-                        protocol.insert(car);
+                        CompressionResponse response = compressor.build(car.toString());
+
+                        protocol.insert(response.getSymbolNode(), response.getValue());
                         break;
 
                     case 3:
@@ -192,7 +187,7 @@ public class Main {
     }
 
     private static void populate() {
-       for(int i = 0; i < 50; i++){
+       for(int i = 0; i < 20; i++){
             int random = (int) (Math.random() * i * 100);
             Car c = new Car(
                     "xgv" + i,
@@ -204,7 +199,9 @@ public class Main {
                     "00011122233"
             );
 
-            protocol.insert(c);
+           CompressionResponse response = compressor.build(c.toString());
+
+           protocol.insert(response.getSymbolNode(), response.getValue());
         }
     }
 }

@@ -4,8 +4,11 @@ import server.domain.Node;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class DatabaseHashTableExt implements DatabaseFunctions {
+    private final Logger logger = Logger.getLogger("hashTableExt");
     private final int SIZE = 251;
     private final LinkedList<Node>[] nodes = new LinkedList[SIZE];
 
@@ -16,13 +19,12 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
     }
 
     public void insert(Node n) {
-        // do something
-        int index = hash(n.car().getRenavan());
+        int index = hash(n.getCar().getRenavan());
         if (nodes[index] == null){
             nodes[index] = new LinkedList<>();
             nodes[index].add(n);
         } else {
-            if (nodes[index].stream().anyMatch(it -> it.equals(n.key())))
+            if (nodes[index].stream().anyMatch(it -> it.equals(n.getKey())))
                 throw new KeyAlreadyExistsException();
             nodes[index].add(n);
         }
@@ -31,15 +33,20 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
     public Node get(String key) {
         int index = hash(key);
 
-        return nodes[index].stream().filter( it -> it.key().equals(key)).findFirst().orElseThrow(() ->
+        Node query = nodes[index].stream().filter(it ->
+                it.getKey().equals(key)).findFirst().orElseThrow(() ->
                 new NullPointerException("Element not found")
         );
+        // Inserindo aqui a tranformacao da lista a cada acesso
+        query.setFrequency(query.getFrequency() + 1);
+        order(nodes[index], index);
+        return query;
     }
 
     public Node remove(String key){
         int index = hash(key);
 
-        Node retrieve = nodes[index].stream().filter( it -> it.key().equals(key)).findFirst().orElseThrow(() ->
+        Node retrieve = nodes[index].stream().filter( it -> it.getKey().equals(key)).findFirst().orElseThrow(() ->
                 new NullPointerException("Element not found")
         );
 
@@ -67,10 +74,10 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
     }
 
     public Node update(Node n){
-        int index = hash(n.key());
+        int index = hash(n.getKey());
 
         for(int i = 0; nodes[index].iterator().hasNext(); i++){
-            if(nodes[index].get(i).key().equals(n.key())){
+            if(nodes[index].get(i).getKey().equals(n.getKey())){
                 nodes[index].add(i, n);
                 return nodes[index].get(i);
             }
@@ -87,5 +94,23 @@ public class DatabaseHashTableExt implements DatabaseFunctions {
         }
 
         return sum;
+    }
+
+    private void order(List<Node> list, Integer index) {
+        logger.info("ordering list: " + index);
+        // shell short
+        for (int gap = list.size()/2; gap > 0; gap /= 2) {
+            for(int i = gap; i < list.size(); i++){
+                Node node = list.get(i);
+                int j = i;
+
+                while (j >= gap && list.get(j-gap).getFrequency() < node.getFrequency()){
+                   list.set(j, list.get(j - gap));
+                   j -= gap;
+                }
+
+                list.set(j, node);
+            }
+        }
     }
 }

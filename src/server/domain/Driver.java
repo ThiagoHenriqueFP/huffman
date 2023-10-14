@@ -15,9 +15,7 @@ public record Driver(
 
     @Override
     public String toString() {
-        return "Driver{" +
-                "name='" + name + '\'' +
-                ", cpf='" + cpf + '\'' +
-                '}';
+        return name +
+                "," + cpf;
     }
 }

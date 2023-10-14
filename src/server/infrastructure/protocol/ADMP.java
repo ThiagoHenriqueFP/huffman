@@ -2,9 +2,10 @@ package server.infrastructure.protocol;
 
 import server.domain.Car;
 import server.domain.Node;
+import server.domain.SymbolNode;
+import server.infrastructure.compressor.Compressor;
 import server.infrastructure.database.DatabaseFunctions;
 import server.infrastructure.database.DatabaseHashTableExt;
-import server.infrastructure.database.DatabaseHashTableOp;
 
 import java.util.logging.Logger;
 
@@ -12,23 +13,21 @@ import java.util.logging.Logger;
 public class ADMP {
 
     private boolean type;
-    private DatabaseFunctions db;
+    private final DatabaseFunctions db = new DatabaseHashTableExt();
+
+    private final Compressor symbolTree = new Compressor();
 
     private final Logger logger = Logger.getLogger("ADMP");
 
-    public ADMP(boolean type) {
-        this.type = type;
-        if (type) this.db = new DatabaseHashTableOp();
-        else this.db = new DatabaseHashTableExt();
-    }
-
-    public void insert(Car c) {
+    public void insert(SymbolNode sn, String value) {
+        Car c = symbolTree.decompress(sn, value);
         Node n = new Node(c);
         db.insert(n);
         logger.info("insertion: key = " + c.getRenavan());
     }
 
-    public Node update(Car c) {
+    public Node update(SymbolNode sn, String value) {
+        Car c = symbolTree.decompress(sn, value);
         Node n = new Node(c);
         logger.info("update: key = " + c.getRenavan());
         return db.update(n);
